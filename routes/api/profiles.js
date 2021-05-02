@@ -6,6 +6,8 @@ const user = require('../../models/User');
 const { check, validationResult } = require('express-validator');
 const { compareSync } = require('bcryptjs');
 
+
+//Retrieve user profile
 router.get('/me', auth, async (req,res) => {
     try{
         const profile  = await Profile.findOne({ user: req.user.id}).populate('user',['name','avatar']);
@@ -22,6 +24,7 @@ router.get('/me', auth, async (req,res) => {
 });
 
 
+//Create and update user profiles
 router.post('/', [ auth, [
     check('status','status is required').not().isEmpty(),
     check('skills','skills is required').not().isEmpty()
@@ -90,6 +93,7 @@ router.post('/', [ auth, [
 });
 
 
+//Retrieve all profiles
 router.get('/', async ( req, res) => {
     try {
         const profile = await Profile.find().populate('user',['name','avatar']);
@@ -100,7 +104,7 @@ router.get('/', async ( req, res) => {
     }
 });
 
-
+//Retrieve specific user profiles
 router.get('/user/:user_id', async ( req, res) => {
     try {
         const profile = await Profile.findOne({ user : req.params.user_id }).populate('user',['name','avatar']);
@@ -117,5 +121,20 @@ router.get('/user/:user_id', async ( req, res) => {
         res.status(500).send('Server Error');        
     }
 });
+
+//Delete user, profile and posts
+router.delete( '/', auth, async ( req, res) => {
+    try {
+        //Remove Profile
+        await Profile.findOneAndRemove({ user : req.user.id });
+        //Remove User
+        await User.findOneAndRemove({ _id : req.user.id });
+        res.json({msg : 'User removed'});
+    } catch (err) {
+        console.error(err.message);
+        res.status(500).send('Server Error');        
+    }
+});
+
 
 module.exports = router;

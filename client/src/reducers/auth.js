@@ -18,6 +18,7 @@ export default function (state = initialState, action) {
         isAuthenticated: true,
         loading: false,
       };
+      console.log('I am here');
     case REGISTER_FAIL:
       localStorage.removeItem('token');
       return {
